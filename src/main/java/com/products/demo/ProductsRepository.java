@@ -7,7 +7,7 @@ import java.util.List;
 @Repository
 public class ProductsRepository {
 
-    List<Product> productList;
+    private List<Product> productList;
 
 
     public ProductsRepository(List<Product> productList) {
@@ -24,8 +24,13 @@ public class ProductsRepository {
         return productList;
     }
 
-    public void add(Product product) {
-        productList.add(product);
+    public boolean add(Product product) {
+        if (productList.contains(product)) {
+            return false;
+        } else {
+            productList.add(product);
+            return true;
+        }
     }
 
 }

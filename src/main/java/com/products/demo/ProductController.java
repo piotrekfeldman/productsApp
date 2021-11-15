@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 public class ProductController {
 
     private ProductsRepository productsRepository;
+    private boolean productToAdd = false;
 
     public ProductController(ProductsRepository productsRepository) {
         this.productsRepository = productsRepository;
@@ -23,10 +23,9 @@ public class ProductController {
     @GetMapping("/")
     public String getCategoryList(Model model) {
 
-        List<Category> categoryList = productsRepository.getAll().
-                stream().map(Product::getCategory).collect(Collectors.toList());
-        model.addAttribute("lista", categoryList);
+
         model.addAttribute("product", new Product());
+        model.addAttribute("success", productToAdd);
         return "index";
     }
 
@@ -48,8 +47,21 @@ public class ProductController {
     }
 
     @PostMapping("/dodaj")
-    public String addProduct(Product product) {
-        productsRepository.add(product);
-        return "index";
+    public String addProduct(Product product, Model model) {
+
+        productToAdd = productsRepository.add(product);
+        if (productToAdd) {
+            return "redirect:success";
+        } else {
+            return "redirect:failure.html";
+        }
+    }
+
+    @GetMapping("/success")
+    public String successPage(Product product, Model model) {
+        Product lastProduct = productsRepository.getAll().stream().reduce((first, second) -> second)
+                .orElse(null);
+        model.addAttribute("last", lastProduct);
+        return "success";
     }
 }
